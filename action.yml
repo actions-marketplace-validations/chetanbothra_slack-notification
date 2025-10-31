@@ -1,0 +1,51 @@
+name: "Slack Deployment Notification"
+description: "Send eye-catching Slack message on deploy success/failure"
+author: "chetanbothra"
+branding:
+  icon: message-circle
+  color: green
+
+inputs:
+  slack_token:
+    description: "Slack Bot Token"
+    required: true
+  slack_channel:
+    description: "Slack Channel ID or name"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Send Slack Notification
+      uses: slackapi/slack-github-action@v2
+      with:
+        method: chat.postMessage
+        token: ${{ inputs.slack_token }}
+        payload: |
+          channel: '${{ inputs.slack_channel }}'
+          attachments: |
+            [
+              {
+                "color": "${{ github.event.deployment_status.state == 'success' && 'good' || 'danger' }}",
+                "blocks": [
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": "${{ github.event.deployment_status.state == 'success' && ':tada: *Deployment Successful!*' || ':x: *Deployment Failed!*' }}"
+                    }
+                  },
+                  { "type": "divider" },
+                  {
+                    "type": "section",
+                    "fields": [
+                      { "type": "mrkdwn", "text": "*Repository:*\\n${{ github.repository }}" },
+                      { "type": "mrkdwn", "text": "*Environment:*\\n${{ github.event.deployment.environment }}" },
+                      { "type": "mrkdwn", "text": "*Commit:*\\n${{ github.sha }}" },
+                      { "type": "mrkdwn", "text": "*Author:*\\n${{ github.actor }}" },
+                      { "type": "mrkdwn", "text": "*Workflow:*\\n<${{ github.event.deployment_status.target_url }}|View Run>" }
+                    ]
+                  }
+                ]
+              }
+            ]
