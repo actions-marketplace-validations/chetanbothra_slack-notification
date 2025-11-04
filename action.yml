@@ -28,6 +28,14 @@ runs:
           STATUS_TEXT=":x: *Deployment Failed!*"
         fi
 
+        # Extract useful URLs
+        COMMIT_URL="${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}"
+        RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        REPO_URL="${{ github.server_url }}/${{ github.repository }}"
+
+        # Shorten commit SHA to first 7 chars
+        SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+
         cat <<EOF > slack_payload.json
         {
           "channel": "${{ inputs.slack_channel }}",
@@ -46,11 +54,10 @@ runs:
                 {
                   "type": "section",
                   "fields": [
-                    { "type": "mrkdwn", "text": "*Repository:*\\n${{ github.repository }}" },
-                    { "type": "mrkdwn", "text": "*Namespace:*\\n${{ github.event.inputs.namespace }}" },
-                    { "type": "mrkdwn", "text": "*Commit:*\\n${{ github.sha }}" },
+                    { "type": "mrkdwn", "text": "*Repository:*\\n<${REPO_URL}|${{ github.repository }}>" },
+                    { "type": "mrkdwn", "text": "*Commit:*\\n<${COMMIT_URL}|${SHORT_SHA}>" },
                     { "type": "mrkdwn", "text": "*Author:*\\n${{ github.actor }}" },
-                    { "type": "mrkdwn", "text": "*Workflow:*\\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>" }
+                    { "type": "mrkdwn", "text": "*Workflow:*\\n<${RUN_URL}|View Deployment Summary>" }
                   ]
                 }
               ]
