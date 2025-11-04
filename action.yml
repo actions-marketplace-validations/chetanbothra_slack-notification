@@ -63,4 +63,5 @@ runs:
       uses: slackapi/slack-github-action@v2
       with:
         token: ${{ inputs.slack_token }}
+        method: chat.postMessage
         payload-file-path: ./slack_payload.json
