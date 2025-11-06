@@ -32,12 +32,9 @@ runs:
         fi
 
         # Extract useful URLs
-        COMMIT_URL="${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}"
+        BRANCH_NAME="${{ github.ref_name }}"
         RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         REPO_URL="${{ github.server_url }}/${{ github.repository }}"
-
-        # Shorten commit SHA to first 7 chars
-        SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
 
         cat <<EOF > slack_payload.json
         {
@@ -58,7 +55,7 @@ runs:
                   "type": "section",
                   "fields": [
                     { "type": "mrkdwn", "text": "*Repository:*\\n<${REPO_URL}|${{ github.repository }}>" },
-                    { "type": "mrkdwn", "text": "*Commit:*\\n<${COMMIT_URL}|${SHORT_SHA}>" },
+                    { "type": "mrkdwn", "text": "*Branch:*\\n${BRANCH_NAME}" },
                     { "type": "mrkdwn", "text": "*Author:*\\n${{ github.actor }}" },
                     { "type": "mrkdwn", "text": "*Environment:*\\n${{ inputs.environment }}" },
                     { "type": "mrkdwn", "text": "*Workflow:*\\n<${RUN_URL}|View Deployment Summary>" }
